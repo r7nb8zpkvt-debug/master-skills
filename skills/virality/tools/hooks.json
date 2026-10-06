@@ -1,6 +1,6 @@
 {
  "version": "virality-1.0",
- "note": "26 hook formulas for short-form video, fused from two packs by the same author. The 21 spoken formulas and their classifier patterns come from Jakeschincariol/youtube-agent-skill; The Cost, The Time Anchor and The Walk-Away come from Jakeschincariol/linkedin-agent-skill; The Payoff and The Replacement encode Jake's own rule that a hook leads with money made, money saved or a number. Every formula carries the spoken line (example), the on-screen line (on_screen, six words or fewer), a written line for LinkedIn or a caption (written), and the way it usually fails. hookscore.py names a hook by counting matching patterns: most hits wins, and ties go to the formula listed first, which is why the specific money formulas come first and the broad ones last. The name is a judgement about the words, never a claim about why a video got its views.",
+ "note": "35 hook formulas for short-form video, fused from three packs by the same author. The 21 spoken formulas and their classifier patterns come from Jakeschincariol/youtube-agent-skill; The Cost, The Time Anchor and The Walk-Away come from Jakeschincariol/linkedin-agent-skill; the last nine (Negative Command through Mid-Sentence Start) are Reel-native formulas from Jakeschincariol/instagram-agent-skill, whose match patterns were rewritten against transcribed speech; The Payoff and The Replacement encode Jake's own rule that a hook leads with money made, money saved or a number. Every formula carries the spoken line (example), the on-screen line (on_screen, six words or fewer), a written line for LinkedIn or a caption (written), and the way it usually fails. hookscore.py names a hook by counting matching patterns: most hits wins, and ties go to the formula listed first, which is why the specific money formulas come first and the broad ones last. The name is a judgement about the words, never a claim about why a video got its views.",
  "rules": [
   "Lead with the payoff: money made, money saved, time saved, or a number. If you do not have a real number, ask for one. Never invent it.",
   "The spoken line and the on-screen line are written separately. On screen is the shorter, blunter one, six words or fewer.",
@@ -451,6 +451,147 @@
     "\\?\\s*$",
     "\\bwhat (?:do|would|should) you do\\b",
     "^what happens (?:when|if)\\b"
+   ]
+  },
+  {
+   "id": "negative-command",
+   "name": "Negative Command",
+   "source": "instagram-agent-skill",
+   "payoff_first": false,
+   "shape": "Stop {a habit the viewer recognises in themselves}. Do {the alternative} instead.",
+   "example": "Stop posting three times a day. Post twice and reply to every comment for an hour.",
+   "on_screen": "STOP POSTING DAILY",
+   "written": "Stop sending proposals as PDFs. Send a one-page doc they can comment on.",
+   "fails_when": "Telling people to stop something nobody does. The habit has to be one the viewer recognises in themselves.",
+   "match": [
+    "^\\s*(?:stop|quit|never|don'?t|dont)\\s+(?!trying to\\b|worrying about\\b)\\w+ing\\b",
+    "^\\s*(?:stop|quit)\\b[^.!?]{0,40}[.!]\\s+(?:do|post|send|use|try|charge|start|make)\\b",
+    "\\bquit your\\b"
+   ]
+  },
+  {
+   "id": "the-steal",
+   "name": "The Steal",
+   "source": "instagram-agent-skill",
+   "payoff_first": false,
+   "shape": "Steal this {artifact}. It took me {time} to get right.",
+   "example": "Steal this four-line follow-up. It took me two years and a lot of dead leads.",
+   "on_screen": "STEAL THIS",
+   "written": "Steal my exact onboarding email. It took eleven drafts to stop getting refunds.",
+   "fails_when": "The artifact not being on screen. If they cannot screenshot it, there is nothing to steal.",
+   "match": [
+    "^\\s*steal\\b",
+    "\\bsteal (?:this|these|my)\\b",
+    "^\\s*(?:here'?s|this is) (?:the|my) (?:exact|literal)\\b"
+   ]
+  },
+  {
+   "id": "if-this-then-watch",
+   "name": "If This, Then Watch",
+   "source": "instagram-agent-skill",
+   "payoff_first": false,
+   "shape": "If you {a specific situation}, the next {short time} fixes it.",
+   "example": "If your reels get views and no followers, the next 40 seconds fix it.",
+   "on_screen": "VIEWS BUT NO FOLLOWERS?",
+   "written": "If clients ghost you after the quote, this one line fixes it.",
+   "fails_when": "A situation so broad it qualifies nobody. 'If you want to grow' is not a situation.",
+   "match": [
+    "^\\s*if (?:you|your)\\b",
+    "\\b(?:the )?next \\d+ seconds\\b|\\bthis (?:one )?(?:line|step|trick) fixes\\b"
+   ]
+  },
+  {
+   "id": "the-objection",
+   "name": "The Objection",
+   "source": "instagram-agent-skill",
+   "payoff_first": false,
+   "shape": "\"{The objection, verbatim}.\" Fine. Here is the version that works anyway.",
+   "example": "\"I don't want to be on camera.\" Fine. Here is the faceless version that still sells.",
+   "on_screen": "\"I HATE BEING ON CAMERA\"",
+   "written": "\"I can't afford a designer.\" Fair. Here is the version that costs nothing.",
+   "fails_when": "Inventing the objection. Pull it verbatim from a DM or a comment, bad grammar included.",
+   "match": [
+    "^\\s*[\\\"\u201c'][^\\\"\u201d]{5,120}[\\\"\u201d'][,.]?\\s*(?:fine|fair|ok|okay|sure|right|here)\\b",
+    "^\\s*[\\\"\\u201c'][^\\\"\\u201d]{5,120}[\\\"\\u201d']\\s*(?:fine|fair)[.!]",
+    "\\bhere(?:'s| is) the (?:\\w+ )?(?:version|way)\\b"
+   ]
+  },
+  {
+   "id": "the-callout",
+   "name": "The Callout",
+   "source": "instagram-agent-skill",
+   "payoff_first": false,
+   "shape": "{A specific group}: this is the one you have been ignoring.",
+   "example": "Photographers charging under $2,000: this is the pricing page you have been avoiding.",
+   "on_screen": "PHOTOGRAPHERS UNDER $2K",
+   "written": "Coaches still charging by the hour: this is the offer page you keep putting off.",
+   "fails_when": "A group so large it is not a callout. 'Entrepreneurs' is not a group.",
+   "match": [
+    "^\\s*[A-Za-z][\\w ]{2,28}(?:ers|ists|ors|ants|es)\\b[^.!?:]{0,40}:",
+    "^\\s*(?:attention|listen up)\\b",
+    "\\byou(?:'ve| have) been (?:ignoring|avoiding|putting off)\\b|\\byou keep putting off\\b"
+   ]
+  },
+  {
+   "id": "the-flop-record",
+   "name": "The Flop Record",
+   "source": "instagram-agent-skill",
+   "payoff_first": false,
+   "shape": "My first {N} {attempts} did nothing. Here is what changed on {N+1}.",
+   "example": "My first 47 reels averaged 300 views. Number 48 did 400,000. One thing was different.",
+   "on_screen": "47 FLOPS, THEN THIS",
+   "written": "My first 12 launches made nothing. Launch 13 paid my rent for a year.",
+   "fails_when": "Making the change sound like luck. If the answer is 'I got lucky', there is no video.",
+   "match": [
+    "\\bmy first\\s+\\d+\\b",
+    "\\bfirst\\s+\\d+\\s+(?:reels?|videos?|posts?|clients?|months?|launches)\\b"
+   ]
+  },
+  {
+   "id": "cold-open-demo",
+   "name": "Cold Open Demo",
+   "source": "instagram-agent-skill",
+   "payoff_first": false,
+   "shape": "{Start mid-action, already doing the thing.} Watch what this does.",
+   "example": "Watch what happens when I paste a competitor's caption into this.",
+   "on_screen": "WATCH THIS",
+   "written": "Let me show you what happens when you paste your bio into this prompt.",
+   "fails_when": "A result that takes twelve seconds to arrive. Cut to the payoff and show the wait afterwards.",
+   "match": [
+    "^\\s*watch (?:what|this|me)\\b",
+    "^\\s*(?:let me|lemme) show you\\b",
+    "^\\s*repeat after me\\b"
+   ]
+  },
+  {
+   "id": "permission",
+   "name": "Permission",
+   "source": "instagram-agent-skill",
+   "payoff_first": false,
+   "shape": "You do not need {the thing everyone says you need}.",
+   "example": "You do not need a niche. You need one person you can name.",
+   "on_screen": "YOU DON'T NEED A NICHE",
+   "written": "You don't need a bigger audience. You need ten people who reply.",
+   "fails_when": "Removing the blocker and putting nothing in its place. The second half is the whole video.",
+   "match": [
+    "\\byou (?:do not|don'?t|dont) need\\b",
+    "\\bstop (?:trying to|worrying about)\\b",
+    "\\byou (?:do not|don'?t|dont) need\\b[^.!?]*[.!?]\\s*you need\\b"
+   ]
+  },
+  {
+   "id": "mid-sentence-start",
+   "name": "Mid-Sentence Start",
+   "source": "instagram-agent-skill",
+   "payoff_first": false,
+   "shape": "...and that is when {the turn}. Start inside the scene, fill in the setup by second eight.",
+   "example": "...and that is when the client asked for the money back. Three days after approving it.",
+   "on_screen": "HE ASKED FOR A REFUND",
+   "written": "...so she said the invoice was 'a suggestion'. That was the end of net-60 for us.",
+   "fails_when": "Never going back to fill in the gap. Deliver the setup by second eight or it reads as a mistake.",
+   "match": [
+    "^\\s*(?:\\.\\.\\.|\u2026)",
+    "^\\s*(?:\\.\\.\\.|\u2026)?\\s*(?:and (?:that'?s|that is|then) when|so (?:he|she|they) (?:said|asked))\\b"
    ]
   }
  ]

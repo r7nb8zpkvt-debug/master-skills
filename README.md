@@ -4,7 +4,7 @@ Three Claude master skills. Free, MIT, no signup, no API key, nothing to connect
 
 `skills/edit` `skills/virality` `skills/build`
 
-**Edit** cuts the dead space, adds captions and dynamic visuals, and generates any type of stop motion. **Virality** fuses the LinkedIn agent and YouTube agent skills: it finds what's working, then rewrites it in your voice for your audience. **Build** merges the best design and coding skills into one, so you get apps and websites that actually work.
+**Edit** cuts the dead space, adds captions and dynamic visuals, and generates any type of stop motion. **Virality** fuses the LinkedIn, YouTube and Instagram agent skills: it finds what's working, then rewrites it in your voice for your audience, and runs the rest of an Instagram account around it. **Build** merges the best design and coding skills into one, so you get apps and websites that actually work.
 
 ## Install
 
@@ -44,7 +44,9 @@ Needs `ffmpeg`. Transcription uses `faster-whisper` if you have it installed, ot
 
 ### /virality
 
-Fuses the [LinkedIn agent](https://github.com/Jakeschincariol/linkedin-agent-skill) and [YouTube agent](https://github.com/Jakeschincariol/youtube-agent-skill) skills into one loop: find the outliers in your niche (views as a multiple of each creator's own median, so one huge account doesn't drown out the signal), break down why they worked (hook formula, format, structure, CTA), rewrite the winner in your voice for your audience, score the hook, and hand you a shoot-ready script with on-screen text, visuals per beat, a caption and a comment-a-keyword CTA.
+Fuses the [LinkedIn agent](https://github.com/Jakeschincariol/linkedin-agent-skill), [YouTube agent](https://github.com/Jakeschincariol/youtube-agent-skill) and [Instagram agent](https://github.com/Jakeschincariol/instagram-agent-skill) skills into one loop: find the outliers in your niche (views as a multiple of each creator's own median, so one huge account doesn't drown out the signal), break down why they worked (hook formula, format, structure, CTA), rewrite the winner in your voice for your audience, score the hook, and hand you a shoot-ready script with on-screen text, visuals per beat, a caption and a comment-a-keyword CTA. `tools/beats.py` times the script into a beat sheet and flags a slow hook, a dead beat or a missing loop before you shoot.
+
+The Instagram side covers everything around the script: `tools/caption.py` shows the 125 characters the feed shows before "... more" and enforces the five-hashtag cap, and the playbooks in `skills/virality/playbooks/` handle carousels, stories, a profile score out of 100, the weekly plan, an audit of what you already posted, repurposing a long video or podcast, and comments, replies and DMs. They write; you post.
 
 Fill in `templates/voice.md` once (or paste three of your own captions and say "write my voice file"). Everything reads it.
 
@@ -62,7 +64,7 @@ Merges the best design skills ([impeccable](https://github.com/pbakaus/impeccabl
 ## Credits
 
 Edit: HyperFrames by HeyGen (Apache-2.0), Remotion agent skills by Remotion, video-use by Browser Use (MIT).
-Virality: linkedin-agent-skill and youtube-agent-skill by Jake Schincariol (MIT).
+Virality: linkedin-agent-skill, youtube-agent-skill and instagram-agent-skill by Jake Schincariol (MIT).
 Build: impeccable by Paul Bakaus (Apache-2.0), frontend-design by Anthropic (Apache-2.0), gstack by Garry Tan (MIT), superpowers by Jesse Vincent (MIT).
 
 ## License

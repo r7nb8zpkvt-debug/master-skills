@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 # Origin: Jakeschincariol/linkedin-agent-skill@add2c23 skills/li-human/humanize.py (MIT, same author). Copied into the virality skill; runs from skills/virality/tools/.
+# The orphaned-punctuation cleanup and restore_capitals() come from the later copy in
+# Jakeschincariol/instagram-agent-skill@d03c56b skills/ig-human/humanize.py.
 """
 humanize.py - strip the machine fingerprint out of a draft.
 
@@ -142,10 +144,20 @@ def pass_lexical(text, lex):
         hits.append({"find": find, "replace": entry["replace"] or "(deleted)",
                      "count": len(found), "family": entry["family"]})
         text = pattern.sub(lambda m: _match_case(m.group(0), entry["replace"]), text)
-    # Clean up after deletions.
+    # Clean up after deletions. Deleting a whole clause leaves orphaned
+    # punctuation behind ("system. ." or a line that now opens on a comma),
+    # and that reads worse than the slop did.
     text = re.sub(r"[ \t]{2,}", " ", text)
-    text = re.sub(r"(?m)^[ \t]*([,.;:])\s*", "", text)
+    text = re.sub(r"(?m)^[ \t]*(?:[,.;:]+[ \t]*)+", "", text)
+    text = re.sub(r"(?m)^[ \t](?=\S)", "", text)       # one space left by a deletion.
+                                                      # Deeper indents are deliberate.
     text = re.sub(r"\s+([,.;:!?])", r"\1", text)
+    text = re.sub(r",\s*([,.;:!?])", r"\1", text)      # an em dash became a comma,
+                                                      # then the clause after it went
+    text = text.replace("...", "\x00ELL\x00")          # protect real ellipses
+    text = re.sub(r"\.\s*\.+", ".", text)
+    text = re.sub(r"([!?])\s*\.", r"\1", text)
+    text = text.replace("\x00ELL\x00", "...")
     text = re.sub(r"(?m)^[ \t]+$", "", text)
     text = re.sub(r"\n{3,}", "\n\n", text)
     # An em dash that became a comma, followed by a sentence connective, leaves
@@ -180,11 +192,28 @@ def scan_structures(text, lex):
     return flags
 
 
+def restore_capitals(original, text):
+    """Deleting an opener leaves the next word lower case.
+
+    Only fix it for writers who capitalise their sentences in the first place:
+    a deliberately lower-case voice is a style, not an artefact, and shouting
+    over it would be exactly the kind of thing this script exists to stop.
+    From instagram-agent-skill@d03c56b.
+    """
+    starts = re.findall(r"(?:^|[.!?]\s+|\n)\s*([A-Za-z])", original)
+    if not starts or sum(1 for c in starts if c.isupper()) * 2 < len(starts):
+        return text
+    return re.sub(r"(?:^|(?<=[.!?] )|(?<=[.!?]\n)|(?<=\n))\s*([a-z])",
+                  lambda m: m.group(0)[:-1] + m.group(1).upper(), text)
+
+
 def humanize(text, lex):
+    raw_for_case = text
     text, urls = protect_urls(text)
     text, inv = pass_invisible(text, lex)
     text, typo = pass_typographic(text, lex)
     text, lexi = pass_lexical(text, lex)
+    text = restore_capitals(raw_for_case, text)
     text = restore_urls(text, urls)
     return text.strip() + "\n", {
         "invisible": inv,

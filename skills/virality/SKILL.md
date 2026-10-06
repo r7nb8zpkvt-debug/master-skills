@@ -7,7 +7,12 @@ description: >-
   creator's own median, names the hook formula, scores hooks, and strips AI tells. Use when the
   user says "make me a viral video", "write a reel/TikTok/short", "what's working in my niche",
   "find viral videos", "rewrite this in my voice", "give me a hook", "script my next video", or
-  wants content that performs. Fuses Jake's LinkedIn and YouTube agent skills.
+  wants content that performs. Also runs the rest of an Instagram account: captions (the line that
+  survives "... more", the 5-hashtag cap), carousels, stories, a profile score out of 100, the
+  weekly plan, an audit of past posts, repurposing a long video or podcast, and comments, replies
+  and DMs. Use for "write the caption", "carousel", "story ideas", "fix my bio", "plan my week",
+  "audit my reels", "repurpose this podcast", "reply to these comments", "what do I DM them".
+  Fuses Jake's LinkedIn, YouTube and Instagram agent skills.
 ---
 
 # virality
@@ -20,8 +25,10 @@ user's audience. Every tool is Python 3 standard library and runs from `tools/` 
 python3 tools/collect.py pasted.txt export.csv yt.json -o candidates.json   # normalize
 python3 tools/swipe.py candidates.json --min 2.0                            # outliers
 python3 tools/hookscore.py hooks.txt                                        # score + formula
-python3 tools/hookscore.py --list                                           # the 26 formulas
+python3 tools/hookscore.py --list                                           # the 35 formulas
 python3 tools/speech.py --line "I saved \$400 on flights." --wpm 170        # time a line
+python3 tools/beats.py say.txt --wpm 170 --target 30                        # beat sheet + flags
+python3 tools/caption.py caption.txt --keywords "meal prep,grocery budget"  # Instagram caption
 python3 tools/humanize.py draft.txt --report -o clean.txt                   # strip AI tells
 python3 tools/detect.py draft.txt clean.txt                                 # 5-check panel
 python3 tools/title.py --title "..." --cover "THREE WORDS"                  # title + cover
@@ -48,7 +55,8 @@ Paths are relative to this skill folder. Write the user's working files to
 ## Step 1: the brief (niche, audience, offer, voice)
 
 Read `~/.claude/virality/audience.md` and `~/.claude/virality/voice.md` if they exist (also
-check `~/.claude/youtube/voice.md` and `~/.claude/linkedin/voice.md` from Jake's other packs).
+check `~/.claude/youtube/voice.md`, `~/.claude/linkedin/voice.md` and `~/.claude/instagram/voice.md`
+from Jake's other packs).
 If missing, fill them from `templates/audience.md` and `templates/voice.md`:
 
 - Ask ONE batched question: niche, the one viewer, the offer and comment keyword, platforms,
@@ -149,7 +157,10 @@ in chat:
 
 - **Beats** `### N. LABEL (m:ss-m:ss)` with `SAY:`, `SCREEN:`, `VISUAL:`. Labels: HOOK first,
   then PROOF / STEP / REHOOK / PAYOFF, CTA last. Time every SAY line with
-  `python3 tools/speech.py --line "..." --wpm <their pace>` and use those timecodes.
+  `python3 tools/speech.py --line "..." --wpm <their pace>` and use those timecodes. Then put the
+  SAY lines in a file, one per line, and run `python3 tools/beats.py say.txt --wpm <pace>
+  --target <seconds>`: fix every flag it raises (hook past 3 s, a beat over 4 s, three beats with
+  nothing concrete, no loop back to a word from the hook) before handing the script over.
 - **Pacing**: hook under ~3 s spoken; 20 to 45 s total for a Reel unless the winners say
   otherwise; a rehook line near the middle ("Here's the part nobody does"); no shot held
   longer than ~1.5 s (list several shots per beat in VISUAL, separated by " / ").
@@ -159,7 +170,9 @@ in chat:
   short 1 to 3 word phrases in the lower third, never over the face.
 - **CTA beat**: `Comment KEYWORD and I'll send you <the thing>.` Keyword on screen.
 - **Caption**: line 1 is the comment-keyword ask (it survives the "... more" cut, about 125
-  characters). Then 2 to 4 short lines with the words people search. No links.
+  characters). Then 2 to 4 short lines with the words people search. No links. For Instagram, run
+  `python3 tools/caption.py caption.txt --keywords "..."` and fix every FAIL
+  (`playbooks/caption.md` has the rest).
 - **Hashtags**: 3 to 5 specific ones. Instagram caps posts at 5 since 18 December 2025.
   Never #fyp, #viral, #explorepage.
 - **Cover**: COVER text 2 to 4 words, different words from the title, and a TITLE for Shorts or
@@ -188,6 +201,22 @@ Shoot it, or change it?
 Append one line to `~/.claude/virality/log.md` on "shoot it": date, formula, hook, keyword. Next
 run, read it and ask for the views so the user's own results feed step 2.
 
+## Instagram jobs beyond the script
+
+When the user wants something other than a shoot-ready script, read the matching playbook and
+follow it. Each one reuses the brief, `voice.md`, the hook library and the humanizer from above.
+
+| the user wants | read |
+| --- | --- |
+| the caption, hashtags, search terms | `playbooks/caption.md` |
+| a carousel or swipe post | `playbooks/carousel.md` |
+| today's stories, a poll, a story funnel | `playbooks/stories.md` |
+| a profile or bio score and rewrite | `playbooks/profile.md` (+ `profile-rubric.json`) |
+| the week planned | `playbooks/plan.md` |
+| a post-mortem on their own posts | `playbooks/audit.md` |
+| one long video, podcast or newsletter turned into posts | `playbooks/repurpose.md` |
+| comments, replies under their post, DMs | `playbooks/engage.md` |
+
 ## Failure handling
 
 - **No data / no tools available**: no yt-dlp, no paste. Ask the user for 10+ posts from their
@@ -214,15 +243,19 @@ run, read it and ask for the views so the user's own results feed step 2.
 
 ## Credits
 
-Fused from two MIT packs by Jake Schincariol (same author as this repo):
+Fused from three MIT packs by Jake Schincariol (same author as this repo):
 [linkedin-agent-skill](https://github.com/Jakeschincariol/linkedin-agent-skill) (humanize.py,
 detect.py, slop.json, three payoff formulas) and
 [youtube-agent-skill](https://github.com/Jakeschincariol/youtube-agent-skill) (swipe.py,
-title.py, the 21-formula hook library and classifier). The hook scoring panel comes from his
-[instagram-agent-skill](https://github.com/Jakeschincariol/instagram-agent-skill) because it was
-calibrated on short-form hooks. Each copied file carries an origin header. The full packs:
+title.py, the 21-formula hook library and classifier). From his
+[instagram-agent-skill](https://github.com/Jakeschincariol/instagram-agent-skill): the hook
+scoring panel (calibrated on short-form hooks), caption.py, beats.py, nine Reel-native hook
+formulas, the caption and voiceover slop block, the humanizer's punctuation cleanup, the profile
+rubric, and the playbooks in `playbooks/`. Each copied file carries an origin header. The full
+packs:
 
 ```
 /plugin marketplace add Jakeschincariol/linkedin-agent-skill
 /plugin marketplace add Jakeschincariol/youtube-agent-skill
+/plugin marketplace add Jakeschincariol/instagram-agent-skill
 ```
