@@ -201,6 +201,8 @@ class TestSkillFiles(unittest.TestCase):
             text = fh.read()
         self.assertTrue(text.startswith("---\nname: virality\n"))
         self.assertLessEqual(len(text.splitlines()), 400)
+        desc = text.split("description: >-\n", 1)[1].split("\n---\n", 1)[0]
+        self.assertLessEqual(len(" ".join(l.strip() for l in desc.splitlines())), 1024)
         with open(os.path.join(SKILL, "templates", "script.md"), encoding="utf-8") as fh:
             tpl = fh.read()
         hook = [l for l in tpl.splitlines() if l.startswith("SAY:")][0][4:].strip()

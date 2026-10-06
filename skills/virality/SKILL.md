@@ -1,18 +1,14 @@
 ---
 name: virality
 description: >-
-  Find what is already working in a niche, then rewrite it in the user's own voice for their
-  audience and hand back a shoot-ready short-form video script (Reels, TikTok, Shorts), with a
-  LinkedIn post or long-form version as a secondary output. Ranks posts by how far each beat its
-  creator's own median, names the hook formula, scores hooks, and strips AI tells. Use when the
-  user says "make me a viral video", "write a reel/TikTok/short", "what's working in my niche",
-  "find viral videos", "rewrite this in my voice", "give me a hook", "script my next video", or
-  wants content that performs. Also runs the rest of an Instagram account: captions (the line that
-  survives "... more", the 5-hashtag cap), carousels, stories, a profile score out of 100, the
-  weekly plan, an audit of past posts, repurposing a long video or podcast, and comments, replies
-  and DMs. Use for "write the caption", "carousel", "story ideas", "fix my bio", "plan my week",
-  "audit my reels", "repurpose this podcast", "reply to these comments", "what do I DM them".
-  Fuses Jake's LinkedIn, YouTube and Instagram agent skills.
+  Find what is already working in a niche, rewrite it in the user's voice, and hand back a
+  shoot-ready short-form script (Reels, TikTok, Shorts), with a LinkedIn or long-form version as
+  a secondary output. Ranks posts by outlier multiple, names and scores the hook, strips AI tells.
+  Also runs the rest of an Instagram account: captions, carousels, stories, profile score, weekly
+  plan, audit, repurposing, comments, replies and DMs. Use for "make me a viral video", "write a
+  reel", "what's working in my niche", "give me a hook", "rewrite this in my voice", "write the
+  caption", "carousel", "story ideas", "fix my bio", "plan my week", "audit my reels", "repurpose
+  this podcast", "reply to these comments". Fuses Jake's LinkedIn, YouTube and Instagram skills.
 ---
 
 # virality
