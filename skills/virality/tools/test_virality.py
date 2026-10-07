@@ -16,6 +16,8 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 SKILL = os.path.dirname(HERE)
 sys.path.insert(0, HERE)
 
+import beats       # noqa: E402
+import caption     # noqa: E402
 import collect     # noqa: E402
 import hookscore   # noqa: E402
 import speech      # noqa: E402
@@ -72,7 +74,7 @@ class TestHookscore(Base):
     def test_library_self_classifies(self):
         with open(os.path.join(HERE, "hooks.json"), encoding="utf-8") as fh:
             lib = json.load(fh)
-        self.assertEqual(len(lib["hooks"]), 26)
+        self.assertEqual(len(lib["hooks"]), 35)
         for h in lib["hooks"]:
             self.assertLessEqual(len(h["on_screen"].split()), 6, h["id"])
             for field in ("example", "written"):
@@ -199,12 +201,80 @@ class TestSkillFiles(unittest.TestCase):
             text = fh.read()
         self.assertTrue(text.startswith("---\nname: virality\n"))
         self.assertLessEqual(len(text.splitlines()), 400)
+        desc = text.split("description: >-\n", 1)[1].split("\n---\n", 1)[0]
+        self.assertLessEqual(len(" ".join(l.strip() for l in desc.splitlines())), 1024)
         with open(os.path.join(SKILL, "templates", "script.md"), encoding="utf-8") as fh:
             tpl = fh.read()
         hook = [l for l in tpl.splitlines() if l.startswith("SAY:")][0][4:].strip()
         a = hookscore.analyse(hook)
         self.assertEqual((a["verdict"], a["payoff"]["status"]), ("STRONG", "LEADS"))
         self.assertLess(speech.seconds(hook, 190), 3.5)
+
+
+class TestInstagramTools(Base):
+    def test_beats_flags_and_loop(self):
+        script = ("I lost $18,000 because of one missing contract and it still bugs me today.\n"
+                  "Here is the exact clause I now put in every single contract I sign with a "
+                  "client and why it matters more than the price.\n"
+                  "Payment on delivery, not on approval.\n"
+                  "That one word is worth $18,000 to me.\n")
+        a = beats.analyse(script, wpm=165, target=30)
+        self.assertEqual(a["beats"][0]["label"], "HOOK")
+        self.assertEqual(a["beats"][-1]["label"], "CTA")
+        self.assertTrue(a["beats"][0]["flags"])                 # hook past 3 s
+        self.assertTrue(a["beats"][1]["flags"])                 # one long beat
+        self.assertTrue(any(n.startswith("Loops") for n in a["notes"]))
+        # numbers are timed the way they are said, same as speech.py
+        self.assertEqual(a["beats"][2]["words"], speech.spoken_words(a["beats"][2]["text"]))
+        code, out, _ = cli("beats.py", self.write("s.txt", script), "--target", "30")
+        self.assertEqual(code, 0)
+        self.assertIn("BEAT SHEET", out)
+        self.assertEqual(cli("beats.py", "missing.txt")[0], 2)
+
+    def test_caption_window_tags_and_asks(self):
+        good = ("Comment CONTRACT and I'll send you the clause that saved me $18,000.\n\n"
+                "Most client contracts pay on approval. Mine pays on delivery.\n\n"
+                "#freelance #contracts\n")
+        a = caption.analyse(good, keywords=["client contracts"])
+        self.assertEqual(a["verdict"], "READY")
+        self.assertEqual(a["asks"], ["comment a keyword"])
+        wall = "Big news today\n" + " ".join("#tag%d" % i for i in range(8)) + "\n"
+        b = caption.analyse(wall)
+        status = {c["check"]: c["status"] for c in b["checks"]}
+        self.assertEqual(status["HASHTAGS"], "FAIL")
+        self.assertEqual(b["verdict"], "FIX")
+        code, out, _ = cli("caption.py", self.write("c.txt", good), "--json")
+        self.assertEqual(code, 0)
+        self.assertEqual(json.loads(out)["truncate_at"], 125)
+        self.assertEqual(cli("caption.py", "missing.txt")[0], 2)
+        self.assertEqual(cli("caption.py", self.write("e.txt", "  \n"))[0], 2)
+
+    def test_humanize_instagram_block_and_cleanup(self):
+        draft = self.write("ig.txt", "Stop scrolling. This hack is a game changer \u2014 follow "
+                                     "for more.\nThe algorithm loves this \u2063trick.\n")
+        code, out, err = cli("humanize.py", draft, "--report")
+        self.assertEqual(code, 0)
+        for gone in ("follow for more", "algorithm loves", "\u2063", "\u2014", "hack"):
+            self.assertNotIn(gone, out)
+        self.assertNotIn(", .", out)
+        self.assertNotIn("..", out.replace("...", ""))
+        self.assertTrue(out.splitlines()[0][0].isupper())
+
+
+class TestPlaybooks(unittest.TestCase):
+    def test_every_routed_playbook_exists(self):
+        with open(os.path.join(SKILL, "SKILL.md"), encoding="utf-8") as fh:
+            text = fh.read()
+        import re
+        routed = set(re.findall(r"`playbooks/([\w-]+\.md)`", text))
+        self.assertGreaterEqual(len(routed), 8)
+        for name in routed:
+            self.assertTrue(os.path.exists(os.path.join(SKILL, "playbooks", name)), name)
+
+    def test_profile_rubric_adds_to_100(self):
+        with open(os.path.join(SKILL, "playbooks", "profile-rubric.json"), encoding="utf-8") as fh:
+            rubric = json.load(fh)
+        self.assertEqual(sum(i["points"] for i in rubric["items"]), rubric["total"])
 
 
 if __name__ == "__main__":

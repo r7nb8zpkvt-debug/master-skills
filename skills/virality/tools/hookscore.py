@@ -29,7 +29,7 @@ Usage
   python3 hookscore.py --hook "first" --hook "second"
   pbpaste | python3 hookscore.py -
   python3 hookscore.py hooks.txt --json
-  python3 hookscore.py --list                     # the 26 formulas, payoff-first marked
+  python3 hookscore.py --list                     # the 35 formulas, payoff-first marked
 
 Exit codes: 0 the best hook is STRONG, 1 no hook is STRONG yet, 2 bad input.
 """
@@ -377,7 +377,7 @@ def render_table(rows, out=sys.stdout):
 
 
 def render_list(out=sys.stdout):
-    print("\n26 HOOK FORMULAS  (P = payoff-first)\n" + "=" * 78, file=out)
+    print("\n%d HOOK FORMULAS  (P = payoff-first)\n" % len(load_formulas()) + "=" * 78, file=out)
     for f, _ in load_formulas():
         print("  %s %-22s %-28s %s" % ("P" if f.get("payoff_first") else " ", f["name"],
                                        f["on_screen"], f["source"]), file=out)
